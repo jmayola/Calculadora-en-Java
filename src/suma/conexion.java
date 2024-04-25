@@ -17,7 +17,7 @@ public class conexion {
     private final String password = "";
     private final String url = "jdbc:mysql://localhost:3306/" + base;
     private Connection con = null;
-    
+    // la base de datos debe contener una llamada calculadora y una tabla calculos con 3 columnas, id, calculo y resultado
     public Connection getConexion()
     {
         

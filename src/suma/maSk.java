@@ -6,15 +6,19 @@ package suma;
 
 import com.mysql.jdbc.PreparedStatement;
 import java.awt.Color;
+import java.awt.Image;
+import java.io.File;
 import javax.swing.JOptionPane;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.lang.Math;
 import java.sql.SQLException;
-import javax.swing.JTable;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -26,40 +30,65 @@ public class maSk extends javax.swing.JFrame {
     /**
      * Creates new form maSk
      */
-    public maSk() {
-        initComponents();
-        this.setLocationRelativeTo(null);
-        PreparedStatement pr = null;
-        ResultSet rs = null;
-        ResultSetMetaData rsmt = null;
+    public void setTable() {
+        PreparedStatement pr = null; //para poder realizar la consulta
+        ResultSet rs = null; // sirve para obtener los resultados
+        ResultSetMetaData rsmt = null; //sirve para obtener informacion de la base de datos
+        //preparamos las variables que vamos a utiliza
         try {
-            DefaultTableModel model = new DefaultTableModel();
+            DefaultTableModel model = new DefaultTableModel(); //para poder modificar la tabla un modelo de jtable
             tabla.setModel(model);
             model.addColumn("id");
             model.addColumn("calculo");
-            model.addColumn("resultado");
+            model.addColumn("resultado"); //definimos los nombres de las columnas, tambien se puede hacer por meta datos
 
             com.mysql.jdbc.Connection sql = new conexion().getConexion();
             pr = (PreparedStatement) sql.prepareStatement("SELECT * FROM calculos");
             rs = pr.executeQuery();
             rsmt = pr.getMetaData();
+            //obtenemos la conexion, realizamos la consulta y guardamos los datos
             int cols = rsmt.getColumnCount(); //obtenemos columnas
             Object filas[] = new Object[cols]; // definimos el numero de columnas para rellenar datos
-            System.out.println(Math.pow(2.2, 2.2));
-
             while (rs.next()) {
                 for (int i = 0; i < cols; i++) {
-                    filas[i] = rs.getObject(i + 1);
+                    filas[i] = rs.getObject(i + 1); //almacenamos los datos en objetos
                 }
                 model.addRow(filas);
             }
         } catch (SQLException e) {
-            System.out.println("Error " + e);
+            JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Revise la conexion a la base de datos, o a la tabla.", "ERROR", 0, 0);
+
+        }
+    }
+
+    //NOTA TECNICA
+    /* 
+        LA BASE DE DATOS DEBE DE LLAMARSE calculadora
+     */
+    public maSk() {
+        initComponents();
+        this.setLocationRelativeTo(null); // para que este centrado en medio de la pantalla
+        setTable(); // pre seleccionamos los calculos anteriores de la base de datos
+        playSound(); // el sonido se ejecutara una sola vez
+        ImageIcon imageIcon1 = new ImageIcon(new ImageIcon("./XVo6.gif").getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT)); //100, 100 add your own size
+        imagen.setIcon(imageIcon1);
+    }
+
+    // la integracion de los apartados de sonido viene de parte de un foto de stackoverflow, junto con un wav que viene de freesound.com
+    public void playSound() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/suma/success-48018.wav").getAbsoluteFile());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception ex) {
+            System.out.println("Error mientras se reproducia el archivo.");
+            ex.printStackTrace();
         }
     }
     String imp = "";
     ScriptEngineManager mgr = new ScriptEngineManager();
-    ScriptEngine engine = mgr.getEngineByName("JavaScript");
+    ScriptEngine engine = mgr.getEngineByName("JavaScript"); //motor de javascript que interpreta strings
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -70,7 +99,7 @@ public class maSk extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        parentecisder = new javax.swing.JPanel();
+        panel = new javax.swing.JPanel();
         num1 = new javax.swing.JTextField();
         dividir = new javax.swing.JButton();
         sumar = new javax.swing.JButton();
@@ -98,11 +127,12 @@ public class maSk extends javax.swing.JFrame {
         borrar = new javax.swing.JButton();
         restar3 = new javax.swing.JButton();
         restar4 = new javax.swing.JButton();
+        imagen = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        parentecisder.setBackground(new java.awt.Color(102, 102, 102));
+        panel.setBackground(new java.awt.Color(102, 102, 102));
 
         dividir.setText("/");
         dividir.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -298,236 +328,185 @@ public class maSk extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout parentecisderLayout = new javax.swing.GroupLayout(parentecisder);
-        parentecisder.setLayout(parentecisderLayout);
-        parentecisderLayout.setHorizontalGroup(
-            parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(parentecisderLayout.createSequentialGroup()
+        imagen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/suma/loading.gif"))); // NOI18N
+
+        javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
+        panel.setLayout(panelLayout);
+        panelLayout.setHorizontalGroup(
+            panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(parentecisderLayout.createSequentialGroup()
-                        .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelLayout.createSequentialGroup()
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(num1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(parentecisderLayout.createSequentialGroup()
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(parentecisderLayout.createSequentialGroup()
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(panelLayout.createSequentialGroup()
                                         .addComponent(multiplicar1)
                                         .addGap(12, 12, 12)
                                         .addComponent(multiplicar2)
                                         .addGap(12, 12, 12)
                                         .addComponent(multiplicar3))
-                                    .addGroup(parentecisderLayout.createSequentialGroup()
+                                    .addGroup(panelLayout.createSequentialGroup()
                                         .addComponent(dividir1)
                                         .addGap(12, 12, 12)
                                         .addComponent(dividir2)
                                         .addGap(12, 12, 12)
                                         .addComponent(dividir3))
-                                    .addGroup(parentecisderLayout.createSequentialGroup()
+                                    .addGroup(panelLayout.createSequentialGroup()
                                         .addComponent(sumar1)
                                         .addGap(12, 12, 12)
                                         .addComponent(sumar2)
                                         .addGap(12, 12, 12)
                                         .addComponent(sumar3))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, parentecisderLayout.createSequentialGroup()
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
                                         .addComponent(borrar)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(coma)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(punto))
-                                    .addGroup(parentecisderLayout.createSequentialGroup()
+                                    .addGroup(panelLayout.createSequentialGroup()
                                         .addComponent(restar1)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(restar3)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(restar4)))
                                 .addGap(12, 12, 12)
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(dividir)
                                     .addComponent(sumar)
                                     .addComponent(restar)
                                     .addComponent(restar2)
-                                    .addComponent(multiplicar)))
-                            .addGroup(parentecisderLayout.createSequentialGroup()
-                                .addGap(90, 90, 90)
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(multiplicar))))
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
+                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18))
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(imagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(86, 86, 86))
-                    .addGroup(parentecisderLayout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton2)
                         .addGap(18, 18, 18))))
         );
-        parentecisderLayout.setVerticalGroup(
-            parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(parentecisderLayout.createSequentialGroup()
+        panelLayout.setVerticalGroup(
+            panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelLayout.createSequentialGroup()
                 .addGap(12, 12, 12)
-                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(parentecisderLayout.createSequentialGroup()
-                        .addComponent(num1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelLayout.createSequentialGroup()
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(num1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(imagen, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(multiplicar)
                             .addComponent(punto)
                             .addComponent(coma)
                             .addComponent(borrar))
                         .addGap(6, 6, 6)
-                        .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(parentecisderLayout.createSequentialGroup()
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(multiplicar1)
                                     .addComponent(multiplicar2)
                                     .addComponent(multiplicar3))
                                 .addGap(6, 6, 6)
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(dividir1)
                                     .addComponent(dividir2)
                                     .addComponent(dividir3))
                                 .addGap(6, 6, 6)
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(sumar1)
                                     .addComponent(sumar2)
                                     .addComponent(sumar3))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(restar1)
                                     .addComponent(restar3)))
-                            .addGroup(parentecisderLayout.createSequentialGroup()
+                            .addGroup(panelLayout.createSequentialGroup()
                                 .addComponent(dividir)
                                 .addGap(6, 6, 6)
                                 .addComponent(sumar)
                                 .addGap(6, 6, 6)
                                 .addComponent(restar)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(parentecisderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(restar2)
-                                    .addComponent(restar4))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton4)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
-                .addGap(0, 45, Short.MAX_VALUE))
+                                    .addComponent(restar4)))
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addComponent(jButton4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3)))))
+                .addGap(0, 91, Short.MAX_VALUE))
         );
 
-        getContentPane().add(parentecisder, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 330));
+        getContentPane().add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 330));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void dividirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividirMouseClicked
+    private void restar4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar4MouseClicked
         // TODO add your handling code here:
-        imp += dividir.getText();
+        imp = imp + restar4.getText();
         num1.setText(imp);
+    }//GEN-LAST:event_restar4MouseClicked
 
-    }//GEN-LAST:event_dividirMouseClicked
-
-    private void sumarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumarMouseClicked
+    private void restar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar3MouseClicked
         // TODO add your handling code here:
-        imp += sumar.getText();
+        imp = imp + restar3.getText();
         num1.setText(imp);
+    }//GEN-LAST:event_restar3MouseClicked
 
-    }//GEN-LAST:event_sumarMouseClicked
-
-    private void restarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restarMouseClicked
+    private void borrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrarMouseClicked
         // TODO add your handling code here:
-        imp += restar.getText();
+        imp = imp.substring(0, imp.length() - 1);
         num1.setText(imp);
+    }//GEN-LAST:event_borrarMouseClicked
 
-    }//GEN-LAST:event_restarMouseClicked
-
-    private void multiplicarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicarMouseClicked
+    private void comaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comaMouseClicked
         // TODO add your handling code here:
-        imp += multiplicar.getText();
+        imp = imp + coma.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_multiplicarMouseClicked
+    }//GEN-LAST:event_comaMouseClicked
 
-    private void dividir1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir1MouseClicked
+    private void puntoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_puntoMouseClicked
         // TODO add your handling code here:
-        imp += dividir1.getText();
+        imp = imp + punto.getText();
         num1.setText(imp);
+    }//GEN-LAST:event_puntoMouseClicked
 
-    }//GEN-LAST:event_dividir1MouseClicked
-
-    private void sumar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar1MouseClicked
+    private void jButton4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseClicked
         // TODO add your handling code here:
-        imp += sumar1.getText();
+        imp += "Math.sqrt(";
         num1.setText(imp);
-    }//GEN-LAST:event_sumar1MouseClicked
+    }//GEN-LAST:event_jButton4MouseClicked
 
-    private void multiplicar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar1MouseClicked
+    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
         // TODO add your handling code here:
-        imp += multiplicar1.getText();
+        imp += "Math.pow(";
         num1.setText(imp);
+    }//GEN-LAST:event_jButton3MouseClicked
 
-    }//GEN-LAST:event_multiplicar1MouseClicked
-
-    private void dividir2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir2MouseClicked
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
         // TODO add your handling code here:
-        imp += dividir2.getText();
-        num1.setText(imp);
-
-
-    }//GEN-LAST:event_dividir2MouseClicked
-
-    private void sumar2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar2MouseClicked
-        // TODO add your handling code here:
-        imp += sumar2.getText();
-        num1.setText(imp);
-
-
-    }//GEN-LAST:event_sumar2MouseClicked
-
-    private void multiplicar2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar2MouseClicked
-        // TODO add your handling code here:
-        imp += multiplicar2.getText();
-        num1.setText(imp);
-
-
-    }//GEN-LAST:event_multiplicar2MouseClicked
-
-    private void dividir3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir3MouseClicked
-        // TODO add your handling code here:
-        imp += dividir3.getText();
-        num1.setText(imp);
-
-
-    }//GEN-LAST:event_dividir3MouseClicked
-
-    private void sumar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar3MouseClicked
-        // TODO add your handling code here:
-        imp += sumar3.getText();
-        num1.setText(imp);
-    }//GEN-LAST:event_sumar3MouseClicked
-
-    private void multiplicar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar3MouseClicked
-        // TODO add your handling code here:
-        imp += multiplicar3.getText();
-        num1.setText(imp);
-    }//GEN-LAST:event_multiplicar3MouseClicked
-
-    private void restar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar1MouseClicked
-        // TODO add your handling code here:
-        imp = imp + restar.getText();
-        num1.setText(imp);
-    }//GEN-LAST:event_restar1MouseClicked
-
-    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        // TODO add your handling code here:
-        if (parentecisder.getBackground() == Color.WHITE) {
-            parentecisder.setBackground(Color.GRAY);
-        } else {
-            parentecisder.setBackground(Color.WHITE);
-        }
-
-    }//GEN-LAST:event_jButton1MouseClicked
+        System.exit(0);
+    }//GEN-LAST:event_jButton2MouseClicked
 
     private void restar2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar2MouseClicked
         // TODO add your handling code here:
@@ -543,7 +522,7 @@ public class maSk extends javax.swing.JFrame {
             pr.setString(1, imp);
             pr.setString(2, result);
             pr.execute();
-            JOptionPane.showConfirmDialog(null, "Calculo Guardado", "Success", 0, 1);
+            setTable();
         } catch (ScriptException e) {
             //if(imp.lastIndexOf(imp) == "+")
             if (e.toString().contains("Expected l-value but found")) {
@@ -560,52 +539,102 @@ public class maSk extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_restar2MouseClicked
 
-    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
-        // TODO add your handling code here:
-        System.exit(0);
-    }//GEN-LAST:event_jButton2MouseClicked
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:        sonidoPlay("perro_win.wav", true);
+        if (panel.getBackground() == Color.WHITE) {
+            panel.setBackground(Color.GRAY);
+        } else {
+            panel.setBackground(Color.WHITE);
+        }
+    }//GEN-LAST:event_jButton1MouseClicked
 
-    private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
+    private void restar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar1MouseClicked
         // TODO add your handling code here:
-        imp += "Math.pow(";
+        imp = imp + restar.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_jButton3MouseClicked
+    }//GEN-LAST:event_restar1MouseClicked
 
-    private void puntoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_puntoMouseClicked
+    private void multiplicar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar3MouseClicked
         // TODO add your handling code here:
-        imp = imp + punto.getText();
+        imp += multiplicar3.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_puntoMouseClicked
+    }//GEN-LAST:event_multiplicar3MouseClicked
 
-    private void comaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comaMouseClicked
+    private void sumar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar3MouseClicked
         // TODO add your handling code here:
-        imp = imp + coma.getText();
+        imp += sumar3.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_comaMouseClicked
+    }//GEN-LAST:event_sumar3MouseClicked
 
-    private void borrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrarMouseClicked
+    private void dividir3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir3MouseClicked
         // TODO add your handling code here:
-        imp = imp.substring(0, imp.length() - 1);
+        imp += dividir3.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_borrarMouseClicked
 
-    private void restar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar3MouseClicked
-        // TODO add your handling code here:
-        imp = imp + restar3.getText();
-        num1.setText(imp);
-    }//GEN-LAST:event_restar3MouseClicked
+    }//GEN-LAST:event_dividir3MouseClicked
 
-    private void restar4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar4MouseClicked
+    private void multiplicar2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar2MouseClicked
         // TODO add your handling code here:
-        imp = imp + restar4.getText();
+        imp += multiplicar2.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_restar4MouseClicked
 
-    private void jButton4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseClicked
+    }//GEN-LAST:event_multiplicar2MouseClicked
+
+    private void sumar2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar2MouseClicked
         // TODO add your handling code here:
-        imp += "Math.sqrt(";
+        imp += sumar2.getText();
         num1.setText(imp);
-    }//GEN-LAST:event_jButton4MouseClicked
+
+    }//GEN-LAST:event_sumar2MouseClicked
+
+    private void dividir2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir2MouseClicked
+        // TODO add your handling code here:
+        imp += dividir2.getText();
+        num1.setText(imp);
+
+    }//GEN-LAST:event_dividir2MouseClicked
+
+    private void multiplicar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar1MouseClicked
+        // TODO add your handling code here:
+        imp += multiplicar1.getText();
+        num1.setText(imp);
+    }//GEN-LAST:event_multiplicar1MouseClicked
+
+    private void sumar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar1MouseClicked
+        // TODO add your handling code here:
+        imp += sumar1.getText();
+        num1.setText(imp);
+    }//GEN-LAST:event_sumar1MouseClicked
+
+    private void dividir1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir1MouseClicked
+        // TODO add your handling code here:
+        imp += dividir1.getText();
+        num1.setText(imp);
+    }//GEN-LAST:event_dividir1MouseClicked
+
+    private void multiplicarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicarMouseClicked
+        // TODO add your handling code here:
+        imp += multiplicar.getText();
+        num1.setText(imp);
+    }//GEN-LAST:event_multiplicarMouseClicked
+
+    private void restarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restarMouseClicked
+        // TODO add your handling code here:
+        imp += restar.getText();
+        num1.setText(imp);
+    }//GEN-LAST:event_restarMouseClicked
+
+    private void sumarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumarMouseClicked
+        // TODO add your handling code here:
+        imp += sumar.getText();
+        num1.setText(imp);
+    }//GEN-LAST:event_sumarMouseClicked
+
+    private void dividirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividirMouseClicked
+        // TODO add your handling code here:
+        imp += dividir.getText(); //al string, le sumamos el valor del boton que estamos tocando
+        num1.setText(imp); // y lo imprimrimos en pantalla
+    }//GEN-LAST:event_dividirMouseClicked
 
     /**
      * @param args the command line arguments
@@ -621,16 +650,24 @@ public class maSk extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(maSk.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(maSk.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(maSk.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(maSk.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(maSk.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(maSk.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(maSk.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(maSk.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -648,6 +685,7 @@ public class maSk extends javax.swing.JFrame {
     private javax.swing.JButton dividir1;
     private javax.swing.JButton dividir2;
     private javax.swing.JButton dividir3;
+    private javax.swing.JLabel imagen;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -658,7 +696,7 @@ public class maSk extends javax.swing.JFrame {
     private javax.swing.JButton multiplicar2;
     private javax.swing.JButton multiplicar3;
     private javax.swing.JTextField num1;
-    private javax.swing.JPanel parentecisder;
+    private javax.swing.JPanel panel;
     private javax.swing.JButton punto;
     private javax.swing.JButton restar;
     private javax.swing.JButton restar1;
