@@ -79,7 +79,7 @@ public class maSk extends javax.swing.JFrame {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/suma/success-48018.wav").getAbsoluteFile());
             Mixer.Info[] mixers =  AudioSystem.getMixerInfo(); //declaramos opciones de mixer, depende del tipo de salida
-            Clip clip = AudioSystem.getClip(mixers[4]); //este es el mixer de mis auriculares, los tres primeros son de la placa
+            Clip clip = AudioSystem.getClip(mixers[0]); //este es el mixer de mis auriculares, los tres primeros son de la placa
             //probablemente se deba de cambiar de mixer para poder verse
             clip.open(audioInputStream);
             clip.start();
@@ -407,9 +407,9 @@ public class maSk extends javax.swing.JFrame {
                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelLayout.createSequentialGroup()
-                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(num1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(imagen, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(imagen, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(num1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(multiplicar)
