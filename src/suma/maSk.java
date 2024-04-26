@@ -15,9 +15,11 @@ import javax.script.ScriptException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.Mixer;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
@@ -26,7 +28,6 @@ import javax.swing.table.DefaultTableModel;
  * @author mayola
  */
 public class maSk extends javax.swing.JFrame {
-
     /**
      * Creates new form maSk
      */
@@ -41,7 +42,6 @@ public class maSk extends javax.swing.JFrame {
             model.addColumn("id");
             model.addColumn("calculo");
             model.addColumn("resultado"); //definimos los nombres de las columnas, tambien se puede hacer por meta datos
-
             com.mysql.jdbc.Connection sql = new conexion().getConexion();
             pr = (PreparedStatement) sql.prepareStatement("SELECT * FROM calculos");
             rs = pr.executeQuery();
@@ -70,15 +70,17 @@ public class maSk extends javax.swing.JFrame {
         this.setLocationRelativeTo(null); // para que este centrado en medio de la pantalla
         setTable(); // pre seleccionamos los calculos anteriores de la base de datos
         playSound(); // el sonido se ejecutara una sola vez
-        ImageIcon imageIcon1 = new ImageIcon(new ImageIcon("./XVo6.gif").getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT)); //100, 100 add your own size
-        imagen.setIcon(imageIcon1);
+        ImageIcon icono = new ImageIcon(new ImageIcon("src/suma/loading.gif").getImage().getScaledInstance(30, 30, Image.SCALE_DEFAULT)); //100, 100 add your own size
+        imagen.setIcon(icono);
     }
 
     // la integracion de los apartados de sonido viene de parte de un foto de stackoverflow, junto con un wav que viene de freesound.com
     public void playSound() {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/suma/success-48018.wav").getAbsoluteFile());
-            Clip clip = AudioSystem.getClip();
+            Mixer.Info[] mixers =  AudioSystem.getMixerInfo(); //declaramos opciones de mixer, depende del tipo de salida
+            Clip clip = AudioSystem.getClip(mixers[4]); //este es el mixer de mis auriculares, los tres primeros son de la placa
+            //probablemente se deba de cambiar de mixer para poder verse
             clip.open(audioInputStream);
             clip.start();
         } catch (Exception ex) {
@@ -339,7 +341,6 @@ public class maSk extends javax.swing.JFrame {
                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelLayout.createSequentialGroup()
                         .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(num1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(panelLayout.createSequentialGroup()
                                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(panelLayout.createSequentialGroup()
@@ -378,25 +379,22 @@ public class maSk extends javax.swing.JFrame {
                                     .addComponent(sumar)
                                     .addComponent(restar)
                                     .addComponent(restar2)
-                                    .addComponent(multiplicar))))
-                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(panelLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                                    .addComponent(multiplicar))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18))
+                                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(panelLayout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(imagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(86, 86, 86))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
+                                .addComponent(num1)
+                                .addGap(18, 18, 18)
+                                .addComponent(imagen, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelLayout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2)
-                        .addGap(18, 18, 18))))
+                        .addComponent(jButton2)))
+                .addGap(86, 86, 86))
         );
         panelLayout.setVerticalGroup(
             panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -453,10 +451,10 @@ public class maSk extends javax.swing.JFrame {
                                 .addComponent(jButton4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton3)))))
-                .addGap(0, 91, Short.MAX_VALUE))
+                .addGap(0, 21, Short.MAX_VALUE))
         );
 
-        getContentPane().add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 330));
+        getContentPane().add(panel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 460, 260));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -675,6 +673,7 @@ public class maSk extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new maSk().setVisible(true);
+                
             }
         });
     }
