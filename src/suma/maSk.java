@@ -1,13 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package suma;
 
 import com.mysql.jdbc.PreparedStatement;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
@@ -15,11 +12,15 @@ import javax.script.ScriptException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.CommunicationException;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,11 +29,52 @@ import javax.swing.table.DefaultTableModel;
  * @author mayola
  */
 public class maSk extends javax.swing.JFrame {
-    /**
-     * Creates new form maSk
-     */
+
+    com.mysql.jdbc.Connection sql = new conexion().getConexion();
+
+    public int verifCon() {
+        try {
+            if (sql.isClosed()) {
+                System.out.println("asdas");
+                return 1;
+            }
+        } catch (Exception ex) {
+            return 1;
+        }
+        return 0;
+    }
+    public String resANt;
+    int resLen;
+    int flag = 1;
+    int flagRep = 1;
+    int flagPar = 1;
+    int flagP = 1;
+    int flagPor = 0;
+    int tableDis = verifCon();
+
+    public boolean invChar(String last) {
+        if (!imp.isEmpty()) {
+            resLen = imp.length();
+            resANt = imp.substring(resLen - 1, resLen);
+            System.out.println(resANt);
+            return !resANt.equals(last);
+        } else {
+            return false;
+        }
+    }
+
+    public PreparedStatement prst() {
+        PreparedStatement pr = null; //para poder realizar la consultax
+        try {
+            pr = (PreparedStatement) sql.prepareStatement("SELECT * FROM calculos ");
+            return pr;
+        } catch (SQLException e) {
+            JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Revise la conexion a la tabla.", "ERROR", 0, 0);
+            return pr;
+        }
+    }
+
     public void setTable() {
-        PreparedStatement pr = null; //para poder realizar la consulta
         ResultSet rs = null; // sirve para obtener los resultados
         ResultSetMetaData rsmt = null; //sirve para obtener informacion de la base de datos
         //preparamos las variables que vamos a utiliza
@@ -42,8 +84,7 @@ public class maSk extends javax.swing.JFrame {
             model.addColumn("id");
             model.addColumn("calculo");
             model.addColumn("resultado"); //definimos los nombres de las columnas, tambien se puede hacer por meta datos
-            com.mysql.jdbc.Connection sql = new conexion().getConexion();
-            pr = (PreparedStatement) sql.prepareStatement("SELECT * FROM calculos");
+            PreparedStatement pr = prst();
             rs = pr.executeQuery();
             rsmt = pr.getMetaData();
             //obtenemos la conexion, realizamos la consulta y guardamos los datos
@@ -55,9 +96,9 @@ public class maSk extends javax.swing.JFrame {
                 }
                 model.addRow(filas);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            tableDis = verifCon();
             JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Revise la conexion a la base de datos, o a la tabla.", "ERROR", 0, 0);
-
         }
     }
 
@@ -68,7 +109,6 @@ public class maSk extends javax.swing.JFrame {
     public maSk() {
         initComponents();
         this.setLocationRelativeTo(null); // para que este centrado en medio de la pantalla
-        setTable(); // pre seleccionamos los calculos anteriores de la base de datos
         playSound(); // el sonido se ejecutara una sola vez
         ImageIcon icono = new ImageIcon(new ImageIcon("src/suma/loading.gif").getImage().getScaledInstance(30, 30, Image.SCALE_DEFAULT)); //100, 100 add your own size
         imagen.setIcon(icono);
@@ -78,14 +118,13 @@ public class maSk extends javax.swing.JFrame {
     public void playSound() {
         try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("src/suma/success-48018.wav").getAbsoluteFile());
-            Mixer.Info[] mixers =  AudioSystem.getMixerInfo(); //declaramos opciones de mixer, depende del tipo de salida
-            Clip clip = AudioSystem.getClip(mixers[0]); //este es el mixer de mis auriculares, los tres primeros son de la placa
+            Mixer.Info[] mixers = AudioSystem.getMixerInfo(); //declaramos opciones de mixer, depende del tipo de salida
+            Clip clip = AudioSystem.getClip(); //este es el mixer de mis auriculares, los tres primeros son de la placa
             //probablemente se deba de cambiar de mixer para poder verse
             clip.open(audioInputStream);
             clip.start();
-        } catch (Exception ex) {
+        } catch (IOException | LineUnavailableException | UnsupportedAudioFileException ex) {
             System.out.println("Error mientras se reproducia el archivo.");
-            ex.printStackTrace();
         }
     }
     String imp = "";
@@ -135,6 +174,16 @@ public class maSk extends javax.swing.JFrame {
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panel.setBackground(new java.awt.Color(102, 102, 102));
+        panel.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                panelFocusGained(evt);
+            }
+        });
+        panel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                panelMouseEntered(evt);
+            }
+        });
 
         dividir.setText("/");
         dividir.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -256,7 +305,7 @@ public class maSk extends javax.swing.JFrame {
                 {null, null, null}
             },
             new String [] {
-                "Title 1", "null", "null"
+                "id", "calculo", "resultado"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -461,44 +510,76 @@ public class maSk extends javax.swing.JFrame {
 
     private void restar4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar4MouseClicked
         // TODO add your handling code here:
-        imp = imp + restar4.getText();
-        num1.setText(imp);
+        if (flag == 0 && flagPar == 0 && flagPor == 1) {
+            imp = imp + restar4.getText();
+            num1.setText(imp);
+            flagPar = 1;
+            flagP = 1;
+        }
     }//GEN-LAST:event_restar4MouseClicked
 
     private void restar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restar3MouseClicked
         // TODO add your handling code here:
-        imp = imp + restar3.getText();
-        num1.setText(imp);
+        if (flag == 1 && flagPar == 1) {
+            imp = imp + restar3.getText();
+            num1.setText(imp);
+            flagPar = 0;
+        }
     }//GEN-LAST:event_restar3MouseClicked
 
     private void borrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_borrarMouseClicked
         // TODO add your handling code here:
-        imp = imp.substring(0, imp.length() - 1);
-        num1.setText(imp);
+        flag = 1;
+        flagRep = 1;
+        flagPar = 1;
+        flagP = 1;
+        try {
+            imp = "";
+            num1.setText(imp);
+        } catch (Exception e) {
+            JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Revise que el campo no este vacio.", "ERROR", 0, 0);
+
+        }
+
     }//GEN-LAST:event_borrarMouseClicked
 
     private void comaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_comaMouseClicked
         // TODO add your handling code here:
-        imp = imp + coma.getText();
-        num1.setText(imp);
+        if (flag == 0 && invChar(coma.getText())) {
+            imp = imp + coma.getText();
+            num1.setText(imp);
+        }
     }//GEN-LAST:event_comaMouseClicked
 
     private void puntoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_puntoMouseClicked
         // TODO add your handling code here:
-        imp = imp + punto.getText();
-        num1.setText(imp);
+        if (flag == 0 && invChar(coma.getText())) {
+            imp = imp + punto.getText();
+            num1.setText(imp);
+            flag = 1;
+        }
     }//GEN-LAST:event_puntoMouseClicked
 
     private void jButton4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton4MouseClicked
         // TODO add your handling code here:
-        imp += "Math.sqrt(";
-        num1.setText(imp);
+        if (flag == 1 && flagP == 1) {
+            imp += "Math.sqrt(";
+            num1.setText(imp);
+            flagP = 0;
+            flagPar = 0;
+
+        }
     }//GEN-LAST:event_jButton4MouseClicked
 
     private void jButton3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton3MouseClicked
         // TODO add your handling code here:
-        imp += "Math.pow(";
-        num1.setText(imp);
+        if (flag == 1 && flagP == 1 && flagPor == 0) {
+            imp += "Math.pow(";
+            num1.setText(imp);
+            flagP = 0;
+            flagPar = 0;
+            flagPor = 1;
+        }
     }//GEN-LAST:event_jButton3MouseClicked
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
@@ -510,27 +591,45 @@ public class maSk extends javax.swing.JFrame {
         // TODO add your handling code here:
         // RESULTADO ====
         try {
-            String result = String.valueOf(engine.eval(imp));
-            num1.setText(result);
-            System.out.println(result);
-            java.sql.Connection sql = new conexion().getConexion();
-            PreparedStatement pr = null;
-            ResultSet rs = null;
-            pr = (PreparedStatement) sql.prepareStatement("INSERT INTO calculos VALUES(null, ?, ?)");
-            pr.setString(1, imp);
-            pr.setString(2, result);
-            pr.execute();
-            setTable();
+            if (!imp.isEmpty()) {
+                tableDis = 0;
+                if (imp.endsWith(",")) {
+                    imp = imp.substring(0, imp.length() - 1) + ".0";
+                }
+                String result = String.valueOf(engine.eval(imp));
+                num1.setText(result);
+                System.out.println(result);
+                java.sql.Connection sql = new conexion().getConexion();
+                PreparedStatement pr = null;
+                ResultSet rs = null;
+                pr = (PreparedStatement) sql.prepareStatement("INSERT INTO calculos VALUES(null, ?, ?)");
+                pr.setString(1, imp);
+                pr.setString(2, result);
+                pr.execute();
+                setTable();
+            }
+            else{
+                            JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Ingrese un Valor a calcular.", "ERROR", 0, 0);
+            }
+
         } catch (ScriptException e) {
             //if(imp.lastIndexOf(imp) == "+")
             if (e.toString().contains("Expected l-value but found")) {
                 JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Ingrese un Valor a calcular.", "ERROR", 0, 0);
             }
             if (e.toString().contains("Expected an operand but found eof")) {
-                JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "No finalice los calculos con operadores.", "ERROR", 0, 0);
+                imp = imp.substring(0, imp.length() - 1);
+                num1.setText(imp);
             }
-            System.out.println(e);
-
+            if (e.toString().contains("Expected , but found eof")) {
+                imp = imp + ")";
+                num1.setText(imp);
+            }
+            if(e.toString().contains("Expected ) but found eof")){
+                imp = imp + ")";
+                num1.setText(imp);
+            }
+            System.out.println(e); //borrar linea despues de terminar testeos
         } catch (SQLException e) {
             JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Error en la base de Datos.", "ERROR", 0, 0);
             System.err.println("error: " + e);
@@ -538,7 +637,7 @@ public class maSk extends javax.swing.JFrame {
     }//GEN-LAST:event_restar2MouseClicked
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        // TODO add your handling code here:        sonidoPlay("perro_win.wav", true);
+        // TODO add your handling code here:
         if (panel.getBackground() == Color.WHITE) {
             panel.setBackground(Color.GRAY);
         } else {
@@ -550,24 +649,31 @@ public class maSk extends javax.swing.JFrame {
         // TODO add your handling code here:
         imp = imp + restar.getText();
         num1.setText(imp);
+        flag = 0;
+
     }//GEN-LAST:event_restar1MouseClicked
 
     private void multiplicar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicar3MouseClicked
         // TODO add your handling code here:
         imp += multiplicar3.getText();
         num1.setText(imp);
+        flag = 0;
+
     }//GEN-LAST:event_multiplicar3MouseClicked
 
     private void sumar3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar3MouseClicked
         // TODO add your handling code here:
         imp += sumar3.getText();
         num1.setText(imp);
+        flag = 0;
+
     }//GEN-LAST:event_sumar3MouseClicked
 
     private void dividir3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir3MouseClicked
         // TODO add your handling code here:
         imp += dividir3.getText();
         num1.setText(imp);
+        flag = 0;
 
     }//GEN-LAST:event_dividir3MouseClicked
 
@@ -575,6 +681,7 @@ public class maSk extends javax.swing.JFrame {
         // TODO add your handling code here:
         imp += multiplicar2.getText();
         num1.setText(imp);
+        flag = 0;
 
     }//GEN-LAST:event_multiplicar2MouseClicked
 
@@ -582,6 +689,7 @@ public class maSk extends javax.swing.JFrame {
         // TODO add your handling code here:
         imp += sumar2.getText();
         num1.setText(imp);
+        flag = 0;
 
     }//GEN-LAST:event_sumar2MouseClicked
 
@@ -589,6 +697,7 @@ public class maSk extends javax.swing.JFrame {
         // TODO add your handling code here:
         imp += dividir2.getText();
         num1.setText(imp);
+        flag = 0;
 
     }//GEN-LAST:event_dividir2MouseClicked
 
@@ -596,43 +705,72 @@ public class maSk extends javax.swing.JFrame {
         // TODO add your handling code here:
         imp += multiplicar1.getText();
         num1.setText(imp);
+        flag = 0;
+
     }//GEN-LAST:event_multiplicar1MouseClicked
 
     private void sumar1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumar1MouseClicked
         // TODO add your handling code here:
         imp += sumar1.getText();
         num1.setText(imp);
+        flag = 0;
+
     }//GEN-LAST:event_sumar1MouseClicked
 
     private void dividir1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividir1MouseClicked
         // TODO add your handling code here:
         imp += dividir1.getText();
         num1.setText(imp);
+        flag = 0;
     }//GEN-LAST:event_dividir1MouseClicked
 
     private void multiplicarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_multiplicarMouseClicked
         // TODO add your handling code here:
-        imp += multiplicar.getText();
-        num1.setText(imp);
+        if (flag == 0 && invChar(multiplicar.getText())) {
+            imp += multiplicar.getText();
+            num1.setText(imp);
+            flag = 1;
+        }
     }//GEN-LAST:event_multiplicarMouseClicked
 
     private void restarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restarMouseClicked
         // TODO add your handling code here:
-        imp += restar.getText();
-        num1.setText(imp);
+        if (flag == 0 && invChar(restar.getText())) {
+            imp += restar.getText();
+            num1.setText(imp);
+            flag = 1;
+        }
     }//GEN-LAST:event_restarMouseClicked
 
     private void sumarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sumarMouseClicked
         // TODO add your handling code here:
-        imp += sumar.getText();
-        num1.setText(imp);
+        if (flag == 0 && invChar(sumar.getText())) {
+            imp += sumar.getText();
+            num1.setText(imp);
+            flag = 1;
+        }
     }//GEN-LAST:event_sumarMouseClicked
 
     private void dividirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dividirMouseClicked
         // TODO add your handling code here:
-        imp += dividir.getText(); //al string, le sumamos el valor del boton que estamos tocando
-        num1.setText(imp); // y lo imprimrimos en pantalla
+        if (flag == 0 && invChar(dividir.getText())) {
+            imp += dividir.getText(); //al string, le sumamos el valor del boton que estamos tocando
+            num1.setText(imp);
+            flag = 1;
+        } // y lo imprimrimos en pantalla
     }//GEN-LAST:event_dividirMouseClicked
+
+    private void panelFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_panelFocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_panelFocusGained
+
+    private void panelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMouseEntered
+        // TODO add your handling code here:
+        if (tableDis == 0) {
+            setTable(); // pre seleccionamos los calculos anteriores de la base de datos
+        }
+
+    }//GEN-LAST:event_panelMouseEntered
 
     /**
      * @param args the command line arguments
@@ -673,7 +811,6 @@ public class maSk extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new maSk().setVisible(true);
-                
             }
         });
     }
