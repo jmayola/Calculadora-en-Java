@@ -524,6 +524,7 @@ public class maSk extends javax.swing.JFrame {
             imp = imp + restar3.getText();
             num1.setText(imp);
             flagPar = 0;
+            flagPor = 1;
         }
     }//GEN-LAST:event_restar3MouseClicked
 
@@ -611,9 +612,7 @@ public class maSk extends javax.swing.JFrame {
             else{
                             JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Ingrese un Valor a calcular.", "ERROR", 0, 0);
             }
-
         } catch (ScriptException e) {
-            //if(imp.lastIndexOf(imp) == "+")
             if (e.toString().contains("Expected l-value but found")) {
                 JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Ingrese un Valor a calcular.", "ERROR", 0, 0);
             }
