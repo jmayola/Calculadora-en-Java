@@ -628,7 +628,6 @@ public class maSk extends javax.swing.JFrame {
                 imp = imp + ")";
                 num1.setText(imp);
             }
-            System.out.println(e); //borrar linea despues de terminar testeos
         } catch (SQLException e) {
             JOptionPane.showConfirmDialog(null, "Ha habido un Error: \n" + "Error en la base de Datos.", "ERROR", 0, 0);
             System.err.println("error: " + e);
